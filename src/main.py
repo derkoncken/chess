@@ -15,7 +15,7 @@ def main():
     board = chess.Board()
     engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
 
-    print("Spiel gestartet. Du spielst Weiß (gib Züge als UCI ein, z. B. e2e4).")
+    print("Spiel gestartet. Du spielst Weiß")
     print("\nAktuelles Brett:")
     print(board)
     while not board.is_game_over():
