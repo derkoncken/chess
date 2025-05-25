@@ -2,7 +2,7 @@ import chess
 import chess.engine
 import os
 import time
-
+from manage_move import manage_move
 from read_board import read_board
 
 # Pfad zur Stockfish-Engine ggf. anpassen
@@ -49,8 +49,8 @@ def main():
 
         # Engine-Zug
         result = engine.play(board, chess.engine.Limit(time=0.5))
+        captured_piece = board.piece_at(result.move.to_square)
         board.push(result.move)
-        print("Roboter denkt ...")
         clear_screen()
         print("----")
         print(f"Roboter spielt: {result.move}")
@@ -58,6 +58,7 @@ def main():
         print(board)
 
         input("Robotermove bestätigen")
+        manage_move(result.move, captured_piece)
         # !! An dieser Stelle eine Funktion aufrufen um den Roboter 
         # den Move "result.move" (String) machen zu lassen. Funktion wird verlassen, 
         # wenn der Roboter fertig ist.
