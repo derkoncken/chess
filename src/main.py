@@ -5,6 +5,8 @@ import time
 from manage_move import manage_move
 from read_board import read_board
 
+
+
 # Pfad zur Stockfish-Engine ggf. anpassen
 ENGINE_PATH = "/usr/games/stockfish"
 
@@ -12,6 +14,7 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def main():
+    pos_captured_pieces = 64
     board = chess.Board()
     engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
 
@@ -19,6 +22,17 @@ def main():
     print("\nAktuelles Brett:")
     print(board)
     while not board.is_game_over():
+        # 1. ermittel zug
+        # 2. mach zug
+        # 1. ermittel zug (bot)
+        # 2. mach zug (bot)
+    
+        # current player
+        #while True
+        # 1. ermittel zug
+        # 2. mach zug
+        # 3. isGameOver?
+        # 4. switch currenet player
 
         # Spielerzug
         while True:
@@ -58,7 +72,7 @@ def main():
         print(board)
 
         input("Robotermove bestätigen")
-        manage_move(result.move, captured_piece)
+        pos_captured_pieces = manage_move(result.move, captured_piece, pos_captured_pieces)
         # !! An dieser Stelle eine Funktion aufrufen um den Roboter 
         # den Move "result.move" (String) machen zu lassen. Funktion wird verlassen, 
         # wenn der Roboter fertig ist.

@@ -3,8 +3,11 @@ import socket
 HOST = "192.168.131.39"
 PORT = 30000
 
-x = 1
-y = 1
+x_start = 1
+y_start = 1
+
+x_ziel = 2
+y_ziel = 2
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -21,7 +24,7 @@ print(f"Empfangen: {data}")
 
 # Wenn Client "send" schreibt, dann sende zwei Werte
 if data.strip() == "send":
-    msg = f'({x},{y})\n'
+    msg = f'({x_start},{y_start},{x_ziel},{y_ziel})\n'
     client_socket.sendall(msg.encode())
     print(f"Gesendet: {msg.strip()}")
 

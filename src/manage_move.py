@@ -1,38 +1,42 @@
 import chess
 import socket
 
+global pos_captured_pieces
 pos_captured_pieces = 64
 
-def manage_move(move, captured_piece):
+def manage_move(move, captured_piece, pos_captured_pieces):
 
     # Vier Sonderfälle | Rochaden
     if move.uci() == "e1g1":  # Weiß kurze Rochade
-        move_piece(chess.E1, chess.G1)  # König e1 → g1
-        move_piece(chess.H1, chess.F1)  # Turm h1 → f1
+        move_piece(chess.E1, chess.G1,0)  # König e1 → g1
+        move_piece(chess.H1, chess.F1,1)  # Turm h1 → f1
 
     elif move.uci() == "e1c1":  # Weiß lange Rochade
-        move_piece(chess.E1, chess.C1)  # König e1 → c1
-        move_piece(chess.A1, chess.D1)  # Turm a1 → d1
+        move_piece(chess.E1, chess.C1,0)  # König e1 → c1
+        move_piece(chess.A1, chess.D1,1)  # Turm a1 → d1
 
     elif move.uci() == "e8g8":  # Schwarz kurze Rochade
-        move_piece(chess.E8, chess.G8)  # König e8 → g8
-        move_piece(chess.H8, chess.F8)  # Turm h8 → f8
+        move_piece(chess.E8, chess.G8,0)  # König e8 → g8
+        move_piece(chess.H8, chess.F8,1)  # Turm h8 → f8
 
     elif move.uci() == "e8c8":  # Schwarz lange Rochade
-        move_piece(chess.E8, chess.C8)  # König e8 → c8
-        move_piece(chess.A8, chess.D8)  # Turm a8 → d8
+        move_piece(chess.E8, chess.C8,0)  # König e8 → c8
+        move_piece(chess.A8, chess.D8,1)  # Turm a8 → d8
     
     # Wenn eine Figur abgeworfen wird, muss diese erst weggestellt werden
     elif captured_piece:
-        move_piece(move.to_square, pos_captured_pieces)
+        move_piece(move.to_square, pos_captured_pieces,0)
         pos_captured_pieces += 1    # Auf nächste freie Stelle stellen
-        move_piece(move.from_square, move.to_square)
-        return
+        move_piece(move.from_square, move.to_square,1)
+        return pos_captured_pieces
     else:
-        move_piece(move.from_square, move.to_square)
+        move_piece(move.from_square, move.to_square,1)
+    return pos_captured_pieces
 
 
-def move_piece(start, target):
+
+def move_piece(start, target, home):
+    print(start, target)
     start_x = start // 8
     start_y = start % 8
     target_x = target // 8
@@ -54,7 +58,7 @@ def move_piece(start, target):
     print(f"Empfangen: {data}")
 
     if data == "send":
-        msg = f'({start_x},{start_y},{target_x},{target_y})\n'
+        msg = f'({start_x},{start_y},{target_x},{target_y},{home})\n'
         client_socket.sendall(msg.encode())
         print(f"Gesendet: {msg.strip()}")
 
@@ -65,6 +69,7 @@ def move_piece(start, target):
             if done_msg.lower() == "done":
                 print("Roboter hat den Zug abgeschlossen.")
                 break
+
 
     client_socket.close()
     server_socket.close()
