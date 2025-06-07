@@ -37,10 +37,10 @@ def manage_move(move, captured_piece, pos_captured_pieces):
 
 def move_piece(start, target, home):
     print(start, target)
-    start_x = start // 8
-    start_y = start % 8
-    target_x = target // 8
-    target_y = target % 8
+    start_y = start // 8
+    start_x = start % 8
+    target_y = target // 8
+    target_x = target % 8
 
     HOST = "192.168.131.39"
     PORT = 30000
