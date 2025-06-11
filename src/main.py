@@ -15,7 +15,7 @@ from qt_material import apply_stylesheet
 ENGINE_PATH = "/usr/games/stockfish"
 
 # Globale Variablen
-pos_captured_pieces = 64
+pos_captured_pieces = 72
 board = chess.Board()
 engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
 
@@ -51,14 +51,15 @@ def plot_png_on_label(label, png_path):
 
 def button_triggered():
     global state, pattern_before, pos_captured_pieces
-
+    show_gui(True)
     """
     try:
-        #test pattern_after = poll_dgt_board()
-        start, target = 8, 16#detect_move(pattern_before, pattern_after)
+        pattern_after = poll_dgt_board()
+        start, target = detect_move(pattern_before, pattern_after)
         move = chess.Move(start, target)
     except Exception as e:
         ui.label.setText(f"Zugerkennung fehlgeschlagen: {e}")
+        show_gui(True)
         return
 
     if move in board.legal_moves:
@@ -67,18 +68,20 @@ def button_triggered():
         update_piece_labels(board, ui)
     else:
         ui.label.setText("Falscher Zug!")
+        show_gui(True)
         return
 
     if board.is_game_over():
         ui.label.setText("Du hast gewonnen!")
         return
     """
-    result = engine.play(board, chess.engine.Limit(time=1))
+    result = engine.play(board, chess.engine.Limit(depth=ui.difficulty.value()))
     captured_piece = board.piece_at(result.move.to_square)
     board.push(result.move)
     ui.label.setText(f"Roboter spielt: {result.move}")
     update_piece_labels(board, ui)
-    return
+    show_gui(True) #Test
+    """
     # ✅ Thread starten
     move_thread = MoveThread(result.move, captured_piece, pos_captured_pieces)
     move_thread.finished.connect(on_move_done)
@@ -86,6 +89,7 @@ def button_triggered():
 
     # Wichtig: Thread referenzieren, damit er nicht sofort gelöscht wird
     ui._move_thread = move_thread
+    """
 
 
 def on_move_done(new_pos):
@@ -100,6 +104,7 @@ def on_move_done(new_pos):
 
     try:
         pattern_before = poll_dgt_board()
+        show_gui(True)
     except Exception as e:
         ui.label.setText(f"Zugerkennung fehlgeschlagen: {e}")
 
@@ -108,9 +113,39 @@ def poll_board_before_triggered():
     global pattern_before
     pattern_before = poll_dgt_board()
 
+def reset_board():
+    global board, engine
+    board = chess.Board()
+    engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
+    update_piece_labels(board, ui)
+    show_gui(True)
+
+def show_gui(state):
+    ui.button.setEnabled(state)
+    ui.poll_board_before.setEnabled(state)
+    ui.reset_board.setEnabled(state)
+    ui.difficulty.setEnabled(state)
+
+def adjust_difficulty():
+    diff = ui.difficulty.value()
+    ui.difficulty_value.setText(str(diff))
+    if diff < 6:
+        ui.comparision.setText("Einfach, 800–1200 Elo")
+    elif diff < 11:
+        ui.comparision.setText("Mittel, 1300–1800 Elo")
+    elif diff < 26:
+        ui.comparision.setText("Schwer, 1900–2400 Elo")
+    else:
+        ui.comparision.setText("Magnus Carlson")
+
+
 
 ui.button.clicked.connect(button_triggered)
 ui.poll_board_before.clicked.connect(poll_board_before_triggered)
+ui.reset_board.clicked.connect(reset_board)
+ui.difficulty.valueChanged.connect(adjust_difficulty)
+
+adjust_difficulty()
 plot_png_on_label(ui.chess_board, "src/chessboard.png")
 plot_png_on_label(ui.logo, "src/logo.png")
 update_piece_labels(board, ui)
