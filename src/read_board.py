@@ -54,9 +54,11 @@ def detect_move(bytes1, bytes2):
     if unterschiede == [60, 61, 62, 63]:
         return [60,62]
 
-    if bytes1[unterschiede[0]] == 0:
-        print("swith")
-        unterschiede.reverse()
+    if len(unterschiede) == 2:
+        start, target = unterschiede
+        if bytes1[start] == 0:
+            start, target = target, start
+        return start, target
 
     # Hinweis, wenn die Längen unterschiedlich sind
     if len(bytes1) != len(bytes2):

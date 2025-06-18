@@ -52,10 +52,11 @@ def plot_png_on_label(label, png_path):
 def button_triggered():
     global state, pattern_before, pos_captured_pieces
     show_gui(True)
-    """
+    
     try:
         pattern_after = poll_dgt_board()
         start, target = detect_move(pattern_before, pattern_after)
+        print("Start: " + str(start) + " ,Ziel: " + str(target))
         move = chess.Move(start, target)
     except Exception as e:
         ui.label.setText(f"Zugerkennung fehlgeschlagen: {e}")
@@ -74,14 +75,14 @@ def button_triggered():
     if board.is_game_over():
         ui.label.setText("Du hast gewonnen!")
         return
-    """
+    
     result = engine.play(board, chess.engine.Limit(depth=ui.difficulty.value()))
     captured_piece = board.piece_at(result.move.to_square)
     board.push(result.move)
     ui.label.setText(f"Roboter spielt: {result.move}")
     update_piece_labels(board, ui)
     show_gui(True) #Test
-    """
+    
     # ✅ Thread starten
     move_thread = MoveThread(result.move, captured_piece, pos_captured_pieces)
     move_thread.finished.connect(on_move_done)
@@ -89,7 +90,7 @@ def button_triggered():
 
     # Wichtig: Thread referenzieren, damit er nicht sofort gelöscht wird
     ui._move_thread = move_thread
-    """
+    
 
 
 def on_move_done(new_pos):
@@ -119,6 +120,7 @@ def reset_board():
     engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
     update_piece_labels(board, ui)
     show_gui(True)
+    pos_captured_pieces = 72
 
 def show_gui(state):
     ui.button.setEnabled(state)
@@ -146,6 +148,7 @@ ui.reset_board.clicked.connect(reset_board)
 ui.difficulty.valueChanged.connect(adjust_difficulty)
 
 adjust_difficulty()
+pattern_before = poll_dgt_board()
 plot_png_on_label(ui.chess_board, "src/chessboard.png")
 plot_png_on_label(ui.logo, "src/logo.png")
 update_piece_labels(board, ui)
@@ -157,91 +160,3 @@ sys.exit(app.exec_())
 
 
 
-
-
-
-
-"""
-
-
-# Pfad zur Stockfish-Engine ggf. anpassen
-ENGINE_PATH = "/usr/games/stockfish"
-
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def main():
-    pos_captured_pieces = 64
-    board = chess.Board()
-    engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
-
-    print("Spiel gestartet. Du spielst Weiß")
-    print("\nAktuelles Brett:")
-    print(board)
-    while not board.is_game_over():
-        # 1. ermittel zug
-        # 2. mach zug
-        # 1. ermittel zug (bot)
-        # 2. mach zug (bot)
-    
-        # current player
-        #while True
-        # 1. ermittel zug
-        # 2. mach zug
-        # 3. isGameOver?
-        # 4. switch currenet player
-
-        # Spielerzug
-        while True:
-            start, target = read_board()
-            try:
-                move = chess.Move(start, target)
-                if move in board.legal_moves:
-                    board.push(move)
-                    clear_screen()
-                    print("----")
-                    print(f"Mensch spielt: {move}")
-                    print("\nAktuelles Brett:")
-                    print(board)
-                    break
-                else:
-                    clear_screen()
-                    print("----")
-                    print("Ungültiger Zug. Versuch es nochmal.")
-                    print("\nAktuelles Brett:")
-                    print(board)
-                    print("Mensch ist am Zug!")
-
-            except:
-                print("Ungültige Eingabe. Beispiel: e2e4")
-
-        if board.is_game_over():
-            break
-
-        # Engine-Zug
-        result = engine.play(board, chess.engine.Limit(time=0.5))
-        captured_piece = board.piece_at(result.move.to_square)
-        board.push(result.move)
-        clear_screen()
-        print("----")
-        print(f"Roboter spielt: {result.move}")
-        print("\nAktuelles Brett:")
-        print(board)
-
-        input("Robotermove bestätigen")
-        pos_captured_pieces = manage_move(result.move, captured_piece, pos_captured_pieces)
-        # !! An dieser Stelle eine Funktion aufrufen um den Roboter 
-        # den Move "result.move" (String) machen zu lassen. Funktion wird verlassen, 
-        # wenn der Roboter fertig ist.
-
-        print("Mensch ist am Zug!")
-
-
-    print("\nSpiel beendet:", board.result())
-    print(board)
-    engine.quit()
-
-if __name__ == "__main__":
-    main()
-
-"""
